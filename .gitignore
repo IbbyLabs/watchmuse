@@ -1,0 +1,17 @@
+node_modules/
+dist/
+*.tsbuildinfo
+.env
+.env.*
+!.env.sample
+data/
+*.sqlite
+*.sqlite-*
+coverage/
+.DS_Store
+*.log
+
+# impeccable local tooling state (hook cache, critique snapshots)
+.impeccable/
+docs/COMPETITIVE-AUDIT.md
+.gitnexus/

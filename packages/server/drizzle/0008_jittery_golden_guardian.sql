@@ -1,0 +1,1 @@
+ALTER TABLE "users" ADD COLUMN "trakt_hide_write_through" boolean DEFAULT false NOT NULL;

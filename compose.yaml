@@ -1,0 +1,72 @@
+# Quickstart stack. Copy .env.sample to .env and fill it in first.
+#
+#   docker compose up -d
+#
+# Postgres and Redis are reachable only on the compose network, so their
+# credentials below stay internal. Mail is captured by Mailhog rather than sent:
+# accounts must confirm their address, and the confirmation link is read at
+# http://localhost:8025. Point SMTP_* at a real relay for a deployment people
+# other than you will use.
+services:
+  app:
+    image: ghcr.io/ibbylabs/watchmuse:latest
+    ports:
+      - '8080:8080'
+    environment:
+      NODE_ENV: production
+      PORT: '8080'
+      APP_URL: ${APP_URL:-http://localhost:8080}
+      DATABASE_URL: postgres://watchmuse:watchmuse@postgres:5432/watchmuse
+      REDIS_URL: redis://redis:6379
+      # Required. Generate the two secrets with: openssl rand -base64 32
+      APP_ENCRYPTION_KEY: ${APP_ENCRYPTION_KEY:?set APP_ENCRYPTION_KEY in .env}
+      SESSION_SECRET: ${SESSION_SECRET:?set SESSION_SECRET in .env}
+      # Required for recommendations, search and artwork. Free key from
+      # https://www.themoviedb.org/settings/api
+      TMDB_API_KEY: ${TMDB_API_KEY:?set TMDB_API_KEY in .env}
+      TRUSTED_PROXIES: ${TRUSTED_PROXIES:-cloudflare}
+      # Optional: let people connect these accounts as history sources.
+      TRAKT_CLIENT_ID: ${TRAKT_CLIENT_ID:-}
+      TRAKT_CLIENT_SECRET: ${TRAKT_CLIENT_SECRET:-}
+      SIMKL_CLIENT_ID: ${SIMKL_CLIENT_ID:-}
+      SIMKL_CLIENT_SECRET: ${SIMKL_CLIENT_SECRET:-}
+      # Close registration once your own account exists.
+      REGISTRATION_ENABLED: ${REGISTRATION_ENABLED:-true}
+      SMTP_HOST: ${SMTP_HOST:-mailhog}
+      SMTP_PORT: ${SMTP_PORT:-1025}
+      SMTP_SECURE: ${SMTP_SECURE:-false}
+      MAIL_FROM: ${MAIL_FROM:-Watchmuse <no-reply@localhost>}
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_started
+    restart: unless-stopped
+
+  postgres:
+    image: postgres:17-alpine
+    environment:
+      POSTGRES_USER: watchmuse
+      POSTGRES_PASSWORD: watchmuse
+      POSTGRES_DB: watchmuse
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ['CMD-SHELL', 'pg_isready -U watchmuse']
+      interval: 5s
+      timeout: 3s
+      retries: 10
+    restart: unless-stopped
+
+  redis:
+    image: redis:7-alpine
+    restart: unless-stopped
+
+  mailhog:
+    image: mailhog/mailhog:latest
+    ports:
+      - '8025:8025'
+    restart: unless-stopped
+
+volumes:
+  pgdata:

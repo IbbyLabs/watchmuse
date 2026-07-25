@@ -1,0 +1,25 @@
+{
+  "name": "watchmuse",
+  "version": "0.6.0",
+  "private": true,
+  "type": "module",
+  "engines": {
+    "node": ">=22",
+    "pnpm": ">=11"
+  },
+  "packageManager": "pnpm@11.10.0",
+  "scripts": {
+    "build": "pnpm -F @watchmuse/core build && pnpm -F @watchmuse/server build && pnpm -F @watchmuse/web build",
+    "dev": "concurrently -n server,web -c blue,magenta \"pnpm -F @watchmuse/server dev\" \"pnpm -F @watchmuse/web dev\"",
+    "start": "node packages/server/dist/index.js",
+    "test": "pnpm -r test",
+    "typecheck": "pnpm -r typecheck",
+    "lint": "pnpm -r lint",
+    "format": "prettier --write \"packages/**/*.{ts,tsx}\""
+  },
+  "devDependencies": {
+    "concurrently": "^9.1.0",
+    "prettier": "^3.4.2",
+    "typescript": "^5.7.3"
+  }
+}
