@@ -270,3 +270,30 @@ describe('SimklClient.pushHistory', () => {
     expect(body.shows[0]!.seasons[0]!.episodes[0]!.watched_at).toBeUndefined();
   });
 });
+
+describe('a Simkl history write that goes wrong', () => {
+  // A bare catch made a failed write indistinguishable from a successful one in
+  // the logs. A wrong date is visible to whoever looks; a swallowed error is not.
+  // 400 rather than 500: anything at or above 500 is retried with backoff, so a
+  // server error makes this a slow test of the retry path instead of a fast test
+  // of the failure path.
+  it('counts every event as failed when the write is rejected', async () => {
+    routeFetch(() => ({ status: 400 }));
+    const res = await new SimklClient({ clientId: 'c', accessToken: 't' }).pushHistory([
+      { ref: { kind: 'movie', ids: { tmdb: 550 } }, watchedAt: null },
+      { ref: { kind: 'movie', ids: { tmdb: 680 } }, watchedAt: null },
+    ]);
+    expect(res).toMatchObject({ added: 0, failed: 2 });
+  });
+
+  // Simkl answers 200 and lists what it could not match, so a status check alone
+  // reports unmatched titles as delivered.
+  it('does not count titles Simkl says it could not find', async () => {
+    routeFetch(() => ({ body: { not_found: { movies: [{ ids: { tmdb: 999 } }] } } }));
+    const res = await new SimklClient({ clientId: 'c', accessToken: 't' }).pushHistory([
+      { ref: { kind: 'movie', ids: { tmdb: 550 } }, watchedAt: null },
+      { ref: { kind: 'movie', ids: { tmdb: 999 } }, watchedAt: null },
+    ]);
+    expect(res).toMatchObject({ added: 1, notFound: 1 });
+  });
+});

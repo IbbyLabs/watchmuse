@@ -379,12 +379,24 @@ export class SimklClient {
     if (movies.length === 0 && shows.length === 0) return result;
 
     try {
-      await this.http.post('/sync/history', { movies, shows });
-      result.added =
+      const res = await this.http.post<{ not_found?: Record<string, unknown[]> }>('/sync/history', {
+        movies,
+        shows,
+      });
+      const sent =
         movies.length +
         shows.reduce((a, s) => a + s.seasons.reduce((b, x) => b + x.episodes.length, 0), 0);
-    } catch {
+      // Simkl answers 200 and reports what it could not match, so a status check
+      // alone counts unmatched titles as delivered.
+      const missing = Object.values(res?.not_found ?? {}).reduce(
+        (n, list) => n + (Array.isArray(list) ? list.length : 0),
+        0,
+      );
+      result.notFound += missing;
+      result.added = sent - missing;
+    } catch (err) {
       result.failed = events.length;
+      log.warn({ err, movies: movies.length, shows: shows.length }, 'Could not write history to Simkl');
     }
     return result;
   }
