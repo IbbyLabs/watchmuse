@@ -6,7 +6,7 @@
   <Network>bridge</Network>
   <Shell>sh</Shell>
   <Privileged>false</Privileged>
-  <Support>https://discord.gg/wPY2pcqjmm</Support>
+  <Support>https://discord.ibbylabs.dev</Support>
   <Project>https://github.com/IbbyLabs/watchmuse</Project>
   <Overview>
     Personalised recommendation catalogs for Stremio, built from your own watch

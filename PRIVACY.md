@@ -70,7 +70,7 @@ If you are in the UK or EU you can ask for a copy of your data, ask for it to
 be corrected or deleted, withdraw a consent, or object to how it is handled.
 Disconnecting a service removes its tokens immediately.
 
-Ask at <https://discord.com/users/947862578682548255> or through
+Ask at <https://dm.ibbylabs.dev> or through
 <https://ibbylabs.dev>.
 
 You may also complain to the UK Information Commissioner's Office at
