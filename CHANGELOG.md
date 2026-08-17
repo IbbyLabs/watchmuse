@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.1.2](https://github.com/IbbyLabs/watchmuse/compare/v0.1.1...v0.1.2) (2026-08-16)
+
+
+### Bug Fixes
+
+* **simkl:** surface write failures and unmatched titles (BUG-252) ([3a2d3cc](https://github.com/IbbyLabs/watchmuse/commit/3a2d3cc0cd3deba01b48bce9f099b48aa97545eb))
+
 ## [0.1.1](https://github.com/IbbyLabs/watchmuse/compare/v0.1.0...v0.1.1) (2026-08-15)
 
 
