@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.2.0](https://github.com/IbbyLabs/watchmuse/compare/v0.1.2...v0.2.0) (2026-10-10)
+
+
+### Features
+
+* **server:** drain readiness before closing on SIGTERM ([8626b57](https://github.com/IbbyLabs/watchmuse/commit/8626b57e3c19b10502acdb05e5d63f90c08a620d))
+
 ## [0.1.2](https://github.com/IbbyLabs/watchmuse/compare/v0.1.1...v0.1.2) (2026-08-16)
 
 
