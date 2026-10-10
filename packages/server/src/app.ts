@@ -33,6 +33,7 @@ import { RateLimiter } from './plugins/rateLimit.js';
 import { registerRealIp } from './plugins/realIp.js';
 import { registerAuth } from './plugins/auth.js';
 import { healthRoutes } from './routes/health.js';
+import type { DrainState } from './shutdown.js';
 import { metricsRoutes } from './routes/metrics.js';
 import { HistoryRowStore } from './catalogs/historyRows.js';
 import { TraktHideMirror } from './catalogs/traktHides.js';
@@ -43,10 +44,12 @@ export interface AppDeps {
   config: AppConfig;
   db: Db;
   mailer: Mailer;
+  drain?: DrainState;
 }
 
 export function buildApp(deps: AppDeps): FastifyInstance {
   const { config, db, mailer } = deps;
+  const drain = deps.drain ?? { draining: false };
   const app = Fastify({
     logger: false,
     // We resolve the client IP ourselves (see registerRealIp) rather than using
@@ -90,7 +93,7 @@ export function buildApp(deps: AppDeps): FastifyInstance {
 
   const limiter = new RateLimiter();
   metricsRoutes(app, config);
-  healthRoutes(app, db, config);
+  healthRoutes(app, db, config, drain);
   authRoutes(app, auth, limiter, config);
   connectionRoutes(app, connectionService, connectionStore, config);
   recoRoutes(app, recommendations);

@@ -101,6 +101,9 @@ const envSchema = z.object({
   /** When set, /metrics requires `Authorization: Bearer <token>`. */
   METRICS_TOKEN: z.string().optional(),
 
+  // Seconds /api/ready reports draining before the HTTP server closes on SIGTERM.
+  WATCHMUSE_DRAIN_SECONDS: z.coerce.number().int().min(0).default(0),
+
   APP_NAME: z.string().default('Watchmuse'),
   APP_VERSION: z.string().default('0.0.0-dev'),
 });

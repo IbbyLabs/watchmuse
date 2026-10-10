@@ -2,6 +2,7 @@ import { createLogger, loadConfig, ConfigStartupError } from '@watchmuse/core';
 import { createDb } from './db/client.js';
 import { createMailer } from './mail/mailer.js';
 import { buildApp } from './app.js';
+import { createShutdown, type DrainState } from './shutdown.js';
 
 const log = createLogger('server');
 
@@ -24,14 +25,18 @@ async function main(): Promise<void> {
   const mailer = createMailer(config);
   await mailer.verify();
 
-  const app = buildApp({ config, db, mailer });
+  const drain: DrainState = { draining: false };
+  const app = buildApp({ config, db, mailer, drain });
 
-  const shutdown = async (signal: string) => {
-    log.info({ signal }, 'Shutting down');
-    await app.close();
-    await db.close();
-    process.exit(0);
-  };
+  const shutdown = createShutdown({
+    drain,
+    drainSeconds: config.WATCHMUSE_DRAIN_SECONDS,
+    close: async () => {
+      await app.close();
+      await db.close();
+    },
+    exit: (code) => process.exit(code),
+  });
   process.on('SIGTERM', () => void shutdown('SIGTERM'));
   process.on('SIGINT', () => void shutdown('SIGINT'));
 
